@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-backend
+  namespace: finbot
+  labels:
+    app: python-backend
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: python-backend
+
+  template:
+    metadata:
+      labels:
+        app: python-backend
+
+    spec:
+      containers:
+        - name: python-backend
+          image: nevilanghan/cksfinbot-python-backend:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: python-backend-config
+            - secretRef:
+                name: python-backend-secrets
+
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "3Gi"
+            limits:
+              cpu: "1000m"
+              memory: "3Gi"
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 15
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10

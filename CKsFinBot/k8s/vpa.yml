@@ -1,0 +1,65 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: python-backend-vpa
+  namespace: finbot
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: python-backend
+  updatePolicy:
+    updateMode: "Recreate"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: python-backend
+      minAllowed:
+        cpu: 100m
+        memory: 256Mi
+      maxAllowed:
+        cpu: 1000m
+        memory: 2Gi
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: node-backend-vpa
+  namespace: finbot
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: node-backend
+  updatePolicy:
+    updateMode: "Recreate"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: node-backend
+      minAllowed:
+        cpu: 100m
+        memory: 128Mi
+      maxAllowed:
+        cpu: 500m
+        memory: 1Gi
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: frontend-vpa
+  namespace: finbot
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: finbot-frontend
+  updatePolicy:
+    updateMode: "Recreate"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: finbot-frontend
+      minAllowed:
+        cpu: 50m
+        memory: 64Mi
+      maxAllowed:
+        cpu: 200m
+        memory: 256Mi

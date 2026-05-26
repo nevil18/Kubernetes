@@ -1,0 +1,26 @@
+FROM node:20-alpine
+
+# create app directory
+WORKDIR /app
+
+# create non-root group and user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# copy dependency files
+COPY package*.json ./
+
+# install dependencies
+RUN npm ci --only=production
+
+# copy source
+COPY . .
+
+# change ownership to non-root user
+RUN chown -R appuser:appgroup /app
+
+# switch to non-root
+USER appuser
+
+EXPOSE 2590
+
+CMD ["node", "--experimental-json-modules", "src/index.js"]

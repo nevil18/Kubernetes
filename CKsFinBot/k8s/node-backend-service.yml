@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-backend
+  namespace: finbot
+  labels:
+    app: node-backend
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: node-backend
+
+  ports:
+    - name: http
+      port: 2590
+      targetPort: 2590
+      protocol: TCP

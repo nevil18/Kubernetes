@@ -1,0 +1,43 @@
+FROM python:3.11-slim AS builder
+WORKDIR /app
+ENV PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org pypi.python.org"
+RUN pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org --trusted-host pypi.python.org uv
+COPY requirements.txt constraints.txt ./
+RUN echo "numpy==1.26.4" > /app/overrides.txt
+RUN uv pip install \
+    --target=/app/deps \
+    --overrides /app/overrides.txt \
+    -r requirements.txt \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    --index-strategy unsafe-best-match
+RUN find /app/deps -maxdepth 1 -name "numpy" -type d -exec rm -rf {} + 2>/dev/null || true && \
+    find /app/deps -maxdepth 1 -name "numpy-*.dist-info" -type d -exec rm -rf {} + 2>/dev/null || true && \
+    find /app/deps -name "_multiarray_umath*.so" -delete 2>/dev/null || true
+RUN uv pip install --target=/app/deps "numpy==1.26.4"
+RUN PYTHONPATH=/app/deps python -c "import numpy as np, torch, torch.nn as nn; print('NumPy:', np.__version__); print('PyTorch:', torch.__version__); assert int(np.__version__.split('.')[0]) == 1, 'FATAL: NumPy 2.x detected!'; print('All checks passed.')"
+RUN PYTHONPATH=/app/deps HF_HOME=/app/models TRANSFORMERS_CACHE=/app/models \
+    PYTHONHTTPSVERIFY=0 REQUESTS_CA_BUNDLE="" CURL_CA_BUNDLE="" \
+    python -c \
+    "import ssl; ssl._create_default_https_context = ssl._create_unverified_context; \
+    from sentence_transformers import SentenceTransformer; \
+    SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2', cache_folder='/app/models'); \
+    print('Model downloaded!')"
+RUN find /app/deps -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
+    find /app/deps -name "*.pyc" -delete 2>/dev/null || true && \
+    find /app/deps -path "*/nvidia*" -exec rm -rf {} + 2>/dev/null || true
+FROM python:3.11-slim
+WORKDIR /app
+COPY --from=builder /app/deps ./deps
+COPY --from=builder /app/models ./models
+COPY app ./app
+COPY handler.py .
+ENV PYTHONPATH=/app/deps
+ENV HF_HOME=/app/models
+ENV TRANSFORMERS_CACHE=/app/models
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV TRANSFORMERS_OFFLINE=1
+ENV HF_DATASETS_OFFLINE=1
+EXPOSE 8000
+USER nobody
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

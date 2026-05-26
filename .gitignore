@@ -1,0 +1,17 @@
+# Secrets
+CKsFinBot/k8s/mongo-secret.yml
+CKsFinBot/k8s/node-backend-secret.yml
+CKsFinBot/k8s/python-backend-secret.yml
+CKsFinBot/k8s/mongo-init-configmap.yaml
+
+# Env files
+**/.env
+
+# Logs
+*.log
+
+# Large folders
+CKsFinBot/Node-Backend/node_modules/
+CKsFinBot/Frontend/node_modules/
+CKsFinBot/Python-Backend/venv/
+CKsFinBot/Python-Backend/__pycache__/

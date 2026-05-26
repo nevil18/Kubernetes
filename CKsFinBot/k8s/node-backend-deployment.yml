@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-backend
+  namespace: finbot
+  labels:
+    app: node-backend
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: node-backend
+
+  template:
+    metadata:
+      labels:
+        app: node-backend
+
+    spec:
+      containers:
+        - name: node-backend
+          image: nevilanghan/cksfinbot-node-backend:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 2590
+          envFrom:
+            - configMapRef:
+                name: node-backend-config
+            - secretRef:
+                name: node-backend-secrets
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /api/v1/healthcheck
+              port: 2590
+            initialDelaySeconds: 60
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /api/v1/healthcheck
+              port: 2590
+            initialDelaySeconds: 30
+            periodSeconds: 5

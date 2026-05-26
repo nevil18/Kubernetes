@@ -1,0 +1,15 @@
+[Unit]
+Description=CKsFinBot Startup Script
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+ExecStart=/bin/bash /home/ubuntu/startup.sh
+RemainAfterExit=yes
+StandardOutput=append:/home/ubuntu/startup.log
+StandardError=append:/home/ubuntu/startup.log
+
+[Install]
+WantedBy=multi-user.target

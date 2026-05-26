@@ -1,0 +1,67 @@
+service: cksfinbot-python-backend
+
+frameworkVersion: ">=3.0.0 <5.0.0"
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: python3.11
+  region: ap-south-1
+  timeout: 30
+  memorySize: 1024
+  architecture: x86_64
+  ecr:
+    images:
+      api:
+        path: ./
+        file: Dockerfile
+        platform: linux/amd64
+        # buildArgs:
+        #   PYTHON_VERSION: "3.11"
+        # cacheFrom:
+        #   - type: registry
+        #     ref: ${aws:accountId}.dkr.eserverless remove --stage devcr.${aws:region}.amazonaws.com/${self:service}:latest
+
+  environment:
+    GOOGLE_API_KEY: ${env:GOOGLE_API_KEY}
+    PINECONE_API_KEY: ${env:PINECONE_API_KEY}
+    NODE_WEBHOOK_URL: ${env:NODE_WEBHOOK_URL}
+
+functions:
+  api:
+    image:
+      name: api
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: any
+
+plugins:
+  - serverless-dotenv-plugin
+
+custom:
+  dotenv:
+    path: .env
+    exclude:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_REGION
+
+package:
+  individually: false
+  patterns:
+    - "!**"
+    - "app/**"
+    - "handler.py"
+    - "requirements.txt"
+    - "Dockerfile"
+    - "!node_modules/**"
+    - "!.env"
+    - "!.git/**"
+    - "!.gitignore"
+    - "!README.md"
+    - "!venv/**"
+    - "!.venv/**"
+    - "!wheels/**"
+    - "!*.pyc"
+    - "!__pycache__/**"

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: node-backend-config
+  namespace: finbot
+data:
+  PORT: "2590"
+  ACCESS_TOKEN_EXPIRY: "1d"
+  REFRESH_TOKEN_EXPIRY: "10d"
+  AWS_REGION: "ap-south-1"
+  PYTHON_SERVICE_URL: "http://python-backend:8000/api/v1"
+  CORS_ORIGIN: "http://23.21.187.113,http://23.21.187.113:8080,http://localhost,http://localhost:5173"
