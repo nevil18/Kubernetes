@@ -134,7 +134,7 @@ pipeline {
 
                     # Step 3: Apply configmaps
                     kubectl apply -f ${K8S_DIR}/mongo-configmap.yml
-                    kubectl apply -f ${K8S_DIR}/mongo-init-configmap.yaml
+                    kubectl apply -f ${K8S_DIR}/mongo-init-configmap.yml
                     kubectl apply -f ${K8S_DIR}/node-backend-configmap.yml
                     kubectl apply -f ${K8S_DIR}/python-backend-configmap.yml
                     kubectl apply -f ${K8S_DIR}/frontend-configmap.yml
