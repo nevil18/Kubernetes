@@ -52,41 +52,62 @@ pipeline {
             }
         }
 
-        stage('Build & Push Frontend') {
+        stage('Frontend - Build, Push & Clean') {
             when {
                 expression { env.BUILD_FRONTEND == 'true' }
             }
             steps {
                 sh """
-                    cd CKsFinBot/Frontend
+                    echo "🔨 Building Frontend..."
+                    cd ${WORKSPACE}/CKsFinBot/Frontend
                     docker build -t ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest .
+
+                    echo "📤 Pushing Frontend..."
                     docker push ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest
+
+                    echo "🧹 Cleaning Frontend image..."
+                    docker rmi ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest || true
+                    docker image prune -f || true
                 """
             }
         }
 
-        stage('Build & Push Node Backend') {
+        stage('Node Backend - Build, Push & Clean') {
             when {
                 expression { env.BUILD_NODE_BACKEND == 'true' }
             }
             steps {
                 sh """
-                    cd CKsFinBot/Node-Backend
+                    echo "🔨 Building Node Backend..."
+                    cd ${WORKSPACE}/CKsFinBot/Node-Backend
                     docker build -t ${DOCKERHUB_USERNAME}/cksfinbot-node-backend:latest .
+
+                    echo "📤 Pushing Node Backend..."
                     docker push ${DOCKERHUB_USERNAME}/cksfinbot-node-backend:latest
+
+                    echo "🧹 Cleaning Node Backend image..."
+                    docker rmi ${DOCKERHUB_USERNAME}/cksfinbot-node-backend:latest || true
+                    docker image prune -f || true
                 """
             }
         }
 
-        stage('Build & Push Python Backend') {
+        stage('Python Backend - Build, Push & Clean') {
             when {
                 expression { env.BUILD_PYTHON == 'true' }
             }
             steps {
                 sh """
-                    cd CKsFinBot/Python-Backend
+                    echo "🔨 Building Python Backend..."
+                    cd ${WORKSPACE}/CKsFinBot/Python-Backend
                     docker build -t ${DOCKERHUB_USERNAME}/cksfinbot-python-backend:latest .
+
+                    echo "📤 Pushing Python Backend..."
                     docker push ${DOCKERHUB_USERNAME}/cksfinbot-python-backend:latest
+
+                    echo "🧹 Cleaning Python Backend image..."
+                    docker rmi ${DOCKERHUB_USERNAME}/cksfinbot-python-backend:latest || true
+                    docker image prune -f || true
                 """
             }
         }
@@ -118,15 +139,19 @@ pipeline {
                 script {
                     if (env.BUILD_FRONTEND == 'true') {
                         sh "kubectl rollout restart deployment/finbot-frontend -n finbot"
+                        sh "kubectl rollout status deployment/finbot-frontend -n finbot --timeout=120s"
                     }
                     if (env.BUILD_NODE_BACKEND == 'true') {
                         sh "kubectl rollout restart deployment/node-backend -n finbot"
+                        sh "kubectl rollout status deployment/node-backend -n finbot --timeout=120s"
                     }
                     if (env.BUILD_PYTHON == 'true') {
                         sh "kubectl rollout restart deployment/python-backend -n finbot"
+                        sh "kubectl rollout status deployment/python-backend -n finbot --timeout=120s"
                     }
                     if (env.BUILD_MONGO == 'true') {
                         sh "kubectl rollout restart statefulset/mongo -n finbot"
+                        sh "kubectl rollout status statefulset/mongo -n finbot --timeout=120s"
                     }
                 }
             }
@@ -134,7 +159,12 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                sh "kubectl get pods -n finbot"
+                sh """
+                    echo "📋 Current pods status:"
+                    kubectl get pods -n finbot
+                    echo "💾 Docker disk usage after cleanup:"
+                    docker system df
+                """
             }
         }
     }
@@ -144,7 +174,11 @@ pipeline {
             echo '✅ Pipeline completed successfully!'
         }
         failure {
+            sh "docker logout || true"
             echo '❌ Pipeline failed!'
+        }
+        always {
+            sh "docker logout || true"
         }
     }
 }
