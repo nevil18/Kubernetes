@@ -61,10 +61,8 @@ pipeline {
                     echo "🔨 Building Frontend..."
                     cd ${WORKSPACE}/CKsFinBot/Frontend
                     docker build -t ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest .
-
                     echo "📤 Pushing Frontend..."
                     docker push ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest
-
                     echo "🧹 Cleaning Frontend image..."
                     docker rmi ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest || true
                     docker image prune -f || true
@@ -81,10 +79,8 @@ pipeline {
                     echo "🔨 Building Node Backend..."
                     cd ${WORKSPACE}/CKsFinBot/Node-Backend
                     docker build -t ${DOCKERHUB_USERNAME}/cksfinbot-node-backend:latest .
-
                     echo "📤 Pushing Node Backend..."
                     docker push ${DOCKERHUB_USERNAME}/cksfinbot-node-backend:latest
-
                     echo "🧹 Cleaning Node Backend image..."
                     docker rmi ${DOCKERHUB_USERNAME}/cksfinbot-node-backend:latest || true
                     docker image prune -f || true
@@ -101,10 +97,8 @@ pipeline {
                     echo "🔨 Building Python Backend..."
                     cd ${WORKSPACE}/CKsFinBot/Python-Backend
                     docker build -t ${DOCKERHUB_USERNAME}/cksfinbot-python-backend:latest .
-
                     echo "📤 Pushing Python Backend..."
                     docker push ${DOCKERHUB_USERNAME}/cksfinbot-python-backend:latest
-
                     echo "🧹 Cleaning Python Backend image..."
                     docker rmi ${DOCKERHUB_USERNAME}/cksfinbot-python-backend:latest || true
                     docker image prune -f || true
@@ -130,7 +124,43 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh "kubectl apply -f ${K8S_DIR}/"
+                sh """
+                    # Step 1: Create namespace first
+                    kubectl apply -f ${K8S_DIR}/namespace.yml
+
+                    # Step 2: Install VPA CRDs if not installed
+                    kubectl get crd verticalpodautoscalers.autoscaling.k8s.io > /dev/null 2>&1 || \
+                    kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/vertical-pod-autoscaler/deploy/vpa-v1-crd-gen.yaml
+
+                    # Step 3: Apply configmaps
+                    kubectl apply -f ${K8S_DIR}/mongo-configmap.yml
+                    kubectl apply -f ${K8S_DIR}/mongo-init-configmap.yaml
+                    kubectl apply -f ${K8S_DIR}/node-backend-configmap.yml
+                    kubectl apply -f ${K8S_DIR}/python-backend-configmap.yml
+                    kubectl apply -f ${K8S_DIR}/frontend-configmap.yml
+
+                    # Step 4: Apply storage
+                    kubectl apply -f ${K8S_DIR}/mongo-pv.yml
+
+                    # Step 5: Apply deployments and services
+                    kubectl apply -f ${K8S_DIR}/mongo-statefulset.yml
+                    kubectl apply -f ${K8S_DIR}/mongo-service.yml
+                    kubectl apply -f ${K8S_DIR}/node-backend-deployment.yml
+                    kubectl apply -f ${K8S_DIR}/node-backend-service.yml
+                    kubectl apply -f ${K8S_DIR}/python-backend-deployment.yml
+                    kubectl apply -f ${K8S_DIR}/python-backend-service.yml
+                    kubectl apply -f ${K8S_DIR}/frontend-deployment.yml
+                    kubectl apply -f ${K8S_DIR}/frontend-service.yml
+
+                    # Step 6: Apply ingress
+                    kubectl apply -f ${K8S_DIR}/ingress-merged.yaml
+
+                    # Step 7: Apply HPA
+                    kubectl apply -f ${K8S_DIR}/node-backend-hpa.yml
+
+                    # Step 8: Apply VPA (skip if CRDs not available)
+                    kubectl apply -f ${K8S_DIR}/vpa.yml 2>/dev/null || echo "⚠️ VPA skipped - CRDs not ready"
+                """
             }
         }
 
@@ -174,7 +204,6 @@ pipeline {
             echo '✅ Pipeline completed successfully!'
         }
         failure {
-            sh "docker logout || true"
             echo '❌ Pipeline failed!'
         }
         always {
