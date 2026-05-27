@@ -2,10 +2,6 @@
 k8s/mongo-secret.yml
 k8s/node-backend-secret.yml
 k8s/python-backend-secret.yml
-k8s/mongo-init-configmap.yaml
-
-# Root level configs with secrets
-/config.yml
 
 # Env files
 .env
