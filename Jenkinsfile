@@ -36,6 +36,12 @@ pipeline {
                     env.BUILD_FRONTEND     = changedFiles.contains('Frontend/') ? 'true' : 'false'
                     env.BUILD_NODE_BACKEND = changedFiles.contains('Node-Backend/') ? 'true' : 'false'
                     env.BUILD_PYTHON       = changedFiles.contains('Python-Backend/') ? 'true' : 'false'
+                    env.BUILD_MONGO        = changedFiles.contains('k8s/mongo') ? 'true' : 'false'
+
+                    echo "Build Frontend: ${env.BUILD_FRONTEND}"
+                    echo "Build Node Backend: ${env.BUILD_NODE_BACKEND}"
+                    echo "Build Python Backend: ${env.BUILD_PYTHON}"
+                    echo "Build Mongo: ${env.BUILD_MONGO}"
                 }
             }
         }
@@ -118,6 +124,9 @@ pipeline {
                     }
                     if (env.BUILD_PYTHON == 'true') {
                         sh "kubectl rollout restart deployment/python-backend -n finbot"
+                    }
+                    if (env.BUILD_MONGO == 'true') {
+                        sh "kubectl rollout restart statefulset/mongo -n finbot"
                     }
                 }
             }
