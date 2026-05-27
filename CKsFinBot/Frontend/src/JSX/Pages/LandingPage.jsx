@@ -166,7 +166,7 @@ const LandingPage = () => {
                 onClick={() => navigate("/app")}
                 className="bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-2 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105"
               >
-                Get Started
+                Get 
               </button>
             </div>
 
