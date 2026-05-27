@@ -202,7 +202,7 @@ const LandingPage = () => {
                 onClick={() => navigateTo("Product")}
                 className="block w-full bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-3 rounded-lg font-semibold text-center hover:shadow-lg hover:shadow-blue-500/50 transition-all"
               >
-                Get Started
+                Started
               </button>
             </div>
           )}
