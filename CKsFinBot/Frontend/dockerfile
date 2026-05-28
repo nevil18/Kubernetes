@@ -4,12 +4,15 @@ WORKDIR /app
 
 COPY package*.json ./
 
-# Install ALL dependencies including devDependencies (needed for vite)
-RUN npm install --include=dev --legacy-peer-deps
+# Set npm config to avoid exit handler issue
+RUN npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-timeout 300000 && \
+    NODE_ENV=development npm install --legacy-peer-deps
 
 COPY . .
 
-RUN npm run build
+RUN NODE_ENV=development npm run build
 
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
