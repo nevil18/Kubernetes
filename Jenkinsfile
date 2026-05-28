@@ -60,7 +60,7 @@ pipeline {
                 sh """
                     echo "🔨 Building Frontend..."
                     cd ${WORKSPACE}/CKsFinBot/Frontend
-                    docker build --network host -t ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest .
+                    docker build --no-cache --network host -t ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest .
                     echo "📤 Pushing Frontend..."
                     docker push ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest
                     echo "🧹 Cleaning Frontend image..."
@@ -78,7 +78,7 @@ pipeline {
                 sh """
                     echo "🔨 Building Node Backend..."
                     cd ${WORKSPACE}/CKsFinBot/Node-Backend
-                    docker build --network host -t ${DOCKERHUB_USERNAME}/cksfinbot-node-backend:latest .
+                    docker build --no-cache --network host -t ${DOCKERHUB_USERNAME}/cksfinbot-node-backend:latest .
                     echo "📤 Pushing Node Backend..."
                     docker push ${DOCKERHUB_USERNAME}/cksfinbot-node-backend:latest
                     echo "🧹 Cleaning Node Backend image..."
@@ -96,7 +96,7 @@ pipeline {
                 sh """
                     echo "🔨 Building Python Backend..."
                     cd ${WORKSPACE}/CKsFinBot/Python-Backend
-                    docker build --network host -t ${DOCKERHUB_USERNAME}/cksfinbot-python-backend:latest .
+                    docker build --no-cache --network host -t ${DOCKERHUB_USERNAME}/cksfinbot-python-backend:latest .
                     echo "📤 Pushing Python Backend..."
                     docker push ${DOCKERHUB_USERNAME}/cksfinbot-python-backend:latest
                     echo "🧹 Cleaning Python Backend image..."
