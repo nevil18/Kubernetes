@@ -22,7 +22,7 @@ spec:
       containers:
         - name: node-backend
           image: nevilanghan/cksfinbot-node-backend:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
 
           ports:
             - containerPort: 2590
