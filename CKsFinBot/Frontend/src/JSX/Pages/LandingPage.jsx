@@ -139,7 +139,7 @@ const LandingPage = () => {
                 />
               </div>
               <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                CKsFinBot
+                FinBot
               </span>
             </div>
 

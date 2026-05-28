@@ -8,6 +8,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
         REPO_URL = 'https://github.com/nevil18/Kubernetes.git'
         K8S_DIR = '/home/ubuntu/project/CKsFinBot/k8s'
+	VITE_API_URL = 'http://23.21.187.113'
     }
 
     triggers {
@@ -60,7 +61,9 @@ pipeline {
                 sh """
                     echo "🔨 Building Frontend..."
                     cd ${WORKSPACE}/CKsFinBot/Frontend
-                    docker build --no-cache --network host -t ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest .
+                    docker build --no-cache --network host \
+    			--build-arg VITE_API_URL=http://23.21.187.113 \
+    			-t ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest .
                     echo "📤 Pushing Frontend..."
                     docker push ${DOCKERHUB_USERNAME}/cksfinbot-frontend:latest
                     echo "🧹 Cleaning Frontend image..."
