@@ -10,7 +10,8 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - http:
+  - host: nevilanghan.me
+    http:
       paths:
       - path: /api
         pathType: Prefix
@@ -26,6 +27,16 @@ spec:
             name: python-backend
             port:
               number: 8000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: finbot-frontend
+            port:
+              number: 80
+  - host: www.nevilanghan.me
+    http:
+      paths:
       - path: /
         pathType: Prefix
         backend:

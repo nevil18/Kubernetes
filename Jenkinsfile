@@ -8,7 +8,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
         REPO_URL = 'https://github.com/nevil18/Kubernetes.git'
         K8S_DIR = '/home/ubuntu/project/CKsFinBot/k8s'
-	VITE_API_URL = 'http://23.21.187.113'
+	VITE_API_URL = 'http://nevilanghan.me'
     }
 
     triggers {

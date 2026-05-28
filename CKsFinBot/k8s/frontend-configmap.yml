@@ -4,5 +4,5 @@ metadata:
   name: frontend-config
   namespace: finbot
 data:
-  VITE_API_URL: "http://23.21.187.113"
+  VITE_API_URL: "http://nevilanghan.me"
   VITE_APP_MODE: "PROD"

@@ -9,4 +9,4 @@ data:
   REFRESH_TOKEN_EXPIRY: "10d"
   AWS_REGION: "ap-south-1"
   PYTHON_SERVICE_URL: "http://python-backend:8000/api/v1"
-  CORS_ORIGIN: "http://23.21.187.113,http://23.21.187.113:8080,http://localhost,http://localhost:5173"
+  CORS_ORIGIN: "http://nevilanghan.me,http://www.nevilanghan.me,http://23.21.187.113,http://localhost,http://localhost:5173"
