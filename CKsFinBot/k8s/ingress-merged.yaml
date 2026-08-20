@@ -44,3 +44,26 @@ spec:
             name: finbot-frontend
             port:
               number: 80
+  - http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: node-backend
+            port:
+              number: 2590
+      - path: /python-api
+        pathType: Prefix
+        backend:
+          service:
+            name: python-backend
+            port:
+              number: 8000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: finbot-frontend
+            port:
+              number: 80
