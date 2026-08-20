@@ -208,7 +208,7 @@ async def get_answer_from_rag(question: str, chat_history: list, pinecone_namesp
     
     # Initialize models once per request
     llm = ChatGroq(
-        model="llama-3.3-70b-versatile", 
+        model="llama-3.3-70b-specdec", 
         temperature=0, 
         api_key=settings.GROQ_API_KEY 
     )
