@@ -171,14 +171,20 @@ pipeline {
             steps {
                 script {
                     if (env.BUILD_FRONTEND == 'true') {
+			sh "docker exec kind-cluster-control-plane crictl rmi nevilanghan/cksfinbot-frontend:latest 2>/dev/null || true"
+                	sh "docker exec kind-cluster-worker crictl rmi nevilanghan/cksfinbot-frontend:latest 2>/dev/null || true"
                         sh "kubectl rollout restart deployment/finbot-frontend -n finbot"
                         sh "kubectl rollout status deployment/finbot-frontend -n finbot --timeout=120s"
                     }
                     if (env.BUILD_NODE_BACKEND == 'true') {
-                        sh "kubectl rollout restart deployment/node-backend -n finbot"
+                        sh "docker exec kind-cluster-control-plane crictl rmi nevilanghan/cksfinbot-node-backend:latest 2>/dev/null || true"
+                	sh "docker exec kind-cluster-worker crictl rmi nevilanghan/cksfinbot-node-backend:latest 2>/dev/null || true"
+			sh "kubectl rollout restart deployment/node-backend -n finbot"
                         sh "kubectl rollout status deployment/node-backend -n finbot --timeout=120s"
                     }
                     if (env.BUILD_PYTHON == 'true') {
+			sh "docker exec kind-cluster-control-plane crictl rmi nevilanghan/cksfinbot-python-backend:latest 2>/dev/null || true"
+                	sh "docker exec kind-cluster-worker crictl rmi nevilanghan/cksfinbot-python-backend:latest 2>/dev/null || true"
                         sh "kubectl rollout restart deployment/python-backend -n finbot"
                         sh "kubectl rollout status deployment/python-backend -n finbot --timeout=120s"
                     }
